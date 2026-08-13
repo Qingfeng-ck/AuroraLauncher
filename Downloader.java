@@ -12,9 +12,8 @@ public class Downloader {
         this.client = HttpClient.newHttpClient();
     }
     
-    // 下载版本JSON
     public String downloadVersionJson(String url, String versionId) throws Exception {
-        System.out.println("📥 正在下载版本JSON...");
+        System.out.println("Downloading version json...");
         
         HttpRequest request = HttpRequest.newBuilder()
             .uri(URI.create(url))
@@ -28,37 +27,28 @@ public class Downloader {
             json.getBytes()
         );
         
-        System.out.println("✅ 已保存到：" + filename);
-        System.out.println("📄 文件大小：" + json.length() + " 字节");
-        
+        System.out.println("Saved to: " + filename);
         return json;
     }
     
-    // 打印依赖库列表
     public void parseAndDisplayLibraries(String versionJson) {
-        System.out.println("\n📚 正在解析依赖库列表...");
+        System.out.println("Parsing libraries...");
         
         int libStart = versionJson.indexOf("\"libraries\":[") + 13;
         int libEnd = versionJson.indexOf("]", libStart);
         String libPart = versionJson.substring(libStart, libEnd);
         String[] libEntries = libPart.split("\\},\\{");
         
-        System.out.println("📦 共 " + libEntries.length + " 个依赖库");
-        System.out.println("\n依赖库列表：");
-        System.out.println("------------------");
-        
+        System.out.println("Total libraries: " + libEntries.length);
         for (int i = 0; i < libEntries.length; i++) {
             String entry = libEntries[i];
             String name = extractValue(entry, "\"name\":\"", "\"");
             System.out.println((i + 1) + ". " + name);
         }
-        
-        System.out.println("\n✅ 依赖库列表解析完成！");
     }
     
-    // 下载所有依赖库
     public void downloadLibraries(String versionJson) throws Exception {
-        System.out.println("\n📦 开始下载依赖库...");
+        System.out.println("Downloading libraries...");
         
         java.nio.file.Files.createDirectories(java.nio.file.Paths.get("libraries"));
         
@@ -86,12 +76,12 @@ public class Downloader {
             java.nio.file.Path localFile = java.nio.file.Paths.get(localPath);
             
             if (java.nio.file.Files.exists(localFile)) {
-                System.out.println("⏭️  已存在：" + artifactId + "-" + version + ".jar");
+                System.out.println("Already exists: " + artifactId);
                 continue;
             }
             
             try {
-                System.out.println("⬇️  下载：" + artifactId + "-" + version + ".jar");
+                System.out.println("Downloading: " + artifactId);
                 java.nio.file.Files.createDirectories(localFile.getParent());
                 
                 HttpRequest request = HttpRequest.newBuilder()
@@ -105,19 +95,18 @@ public class Downloader {
                 if (response.statusCode() == 200) {
                     count++;
                 } else {
-                    System.out.println("⚠️  下载失败：" + url);
+                    System.out.println("Failed: " + url);
                 }
             } catch (Exception e) {
-                System.out.println("❌ 下载出错：" + artifactId);
+                System.out.println("Error downloading: " + artifactId);
             }
         }
         
-        System.out.println("\n✅ 下载完成！共下载 " + count + " 个新文件");
+        System.out.println("Downloaded " + count + " new files");
     }
     
-    // 下载游戏核心文件 client.jar
     public void downloadClient(String versionJson, String versionId) throws Exception {
-        System.out.println("\n🎮 正在下载游戏核心文件...");
+        System.out.println("Downloading client jar...");
         
         java.nio.file.Files.createDirectories(java.nio.file.Paths.get("versions/" + versionId));
         
@@ -132,7 +121,7 @@ public class Downloader {
         }
         
         if (clientUrl.isEmpty()) {
-            System.out.println("❌ 未找到client.jar下载地址");
+            System.out.println("Client jar url not found");
             return;
         }
         
@@ -140,12 +129,12 @@ public class Downloader {
         java.nio.file.Path localFile = java.nio.file.Paths.get(localPath);
         
         if (java.nio.file.Files.exists(localFile)) {
-            System.out.println("⏭️  已存在：" + versionId + ".jar");
+            System.out.println("Already exists: " + versionId + ".jar");
             return;
         }
         
         try {
-            System.out.println("⬇️  下载：" + versionId + ".jar");
+            System.out.println("Downloading: " + versionId + ".jar");
             java.nio.file.Files.createDirectories(localFile.getParent());
             
             HttpRequest request = HttpRequest.newBuilder()
@@ -158,24 +147,23 @@ public class Downloader {
             
             if (response.statusCode() == 200) {
                 long size = java.nio.file.Files.size(localFile);
-                System.out.println("✅ 下载完成！文件大小：" + size + " 字节");
+                System.out.println("Downloaded, size: " + size + " bytes");
             } else {
-                System.out.println("⚠️  下载失败，状态码：" + response.statusCode());
+                System.out.println("Failed, status: " + response.statusCode());
             }
         } catch (Exception e) {
-            System.out.println("❌ 下载出错：" + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
     }
     
-    // 启动游戏
     public void launchGame(String versionId, String versionJson) throws Exception {
-        System.out.println("\n🚀 准备启动 Minecraft " + versionId + "...");
+        System.out.println("Launching Minecraft " + versionId + "...");
         
         String mainClass = extractValue(versionJson, "\"mainClass\":\"", "\"");
         if (mainClass.isEmpty()) {
             mainClass = "net.minecraft.client.main.Main";
         }
-        System.out.println("📌 主类：" + mainClass);
+        System.out.println("Main class: " + mainClass);
         
         StringBuilder classpath = new StringBuilder();
         classpath.append("versions/").append(versionId).append("/").append(versionId).append(".jar");
@@ -203,17 +191,16 @@ public class Downloader {
         command.add("--accessToken");
         command.add("AuroraLauncher");
         
-        System.out.println("\n📋 启动命令：");
-        System.out.println(String.join(" ", command));
+        System.out.println("Command: " + String.join(" ", command));
+        System.out.println("Starting game...");
         
-        System.out.println("\n🎮 正在启动游戏...");
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.inheritIO();
         pb.directory(java.nio.file.Paths.get(".").toFile());
         
         Process process = pb.start();
         int exitCode = process.waitFor();
-        System.out.println("\n🏁 游戏已退出，退出码：" + exitCode);
+        System.out.println("Game exited with code: " + exitCode);
     }
     
     private String extractValue(String text, String start, String end) {
