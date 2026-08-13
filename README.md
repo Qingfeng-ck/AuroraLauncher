@@ -1,1 +1,1 @@
-# AuroraLauncher
+# PrismLauncher
