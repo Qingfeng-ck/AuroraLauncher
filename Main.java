@@ -23,9 +23,10 @@ public class Main {
             
             downloader.parseAndDisplayLibraries(versionJson);
             downloader.downloadLibraries(versionJson);
-            
-            // 新增：下载client.jar
             downloader.downloadClient(versionJson, versionId);
+            
+            // 新增：启动游戏
+            downloader.launchGame(versionId, versionJson);
         }
     }
 }
