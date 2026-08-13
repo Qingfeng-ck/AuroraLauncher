@@ -18,15 +18,12 @@ public class MainUI extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        // 初始化后端
         vm = new VersionManager();
         downloader = new Downloader();
         
-        // 标题
         Label title = new Label("✨ Aurora Launcher");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;");
         
-        // 版本下拉框
         versionBox = new ComboBox<>();
         versionBox.setStyle("""
             -fx-background-color: rgba(255,255,255,0.15);
@@ -36,7 +33,6 @@ public class MainUI extends Application {
             -fx-padding: 8px 15px;
         """);
         
-        // 启动按钮
         launchBtn = new Button("🚀 启动游戏");
         launchBtn.setStyle("""
             -fx-background-color: linear-gradient(to bottom, #6dd5fa, #2980b9);
@@ -49,11 +45,9 @@ public class MainUI extends Application {
         launchBtn.setOnAction(e -> launchGame());
         launchBtn.setDisable(true);
         
-        // 状态栏
         status = new Label("⏳ 正在加载版本列表...");
         status.setStyle("-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 13px;");
         
-        // 布局
         VBox root = new VBox(15);
         root.setStyle("""
             -fx-background-color: rgba(255,255,255,0.10);
@@ -74,7 +68,6 @@ public class MainUI extends Application {
         stage.setScene(scene);
         stage.show();
         
-        // 后台加载版本列表
         loadVersions();
     }
     
@@ -114,7 +107,6 @@ public class MainUI extends Application {
             @Override
             protected Void call() throws Exception {
                 try {
-                    // 获取版本URL
                     String url = "";
                     for (int i = 0; i < vm.getVersionCount(); i++) {
                         if (vm.getVersionId(i).equals(selected)) {
@@ -123,16 +115,16 @@ public class MainUI extends Application {
                         }
                     }
                     
-                    Platform.runLater(() -> status.setText("📥 下载版本JSON..."));
+                    Platform.runLater(() -> status.setText("📥 正在下载版本JSON..."));
                     String json = downloader.downloadVersionJson(url, selected);
                     
-                    Platform.runLater(() -> status.setText("📦 下载依赖库..."));
+                    Platform.runLater(() -> status.setText("📦 正在下载依赖库..."));
                     downloader.downloadLibraries(json);
                     
-                    Platform.runLater(() -> status.setText("🎮 下载游戏核心..."));
+                    Platform.runLater(() -> status.setText("🎮 正在下载游戏核心..."));
                     downloader.downloadClient(json, selected);
                     
-                    Platform.runLater(() -> status.setText("🚀 启动游戏..."));
+                    Platform.runLater(() -> status.setText("🚀 正在启动游戏..."));
                     downloader.launchGame(selected, json);
                     
                     Platform.runLater(() -> status.setText("✅ 游戏已启动！"));
