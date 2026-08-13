@@ -167,6 +167,55 @@ public class Downloader {
         }
     }
     
+    // 启动游戏
+    public void launchGame(String versionId, String versionJson) throws Exception {
+        System.out.println("\n🚀 准备启动 Minecraft " + versionId + "...");
+        
+        String mainClass = extractValue(versionJson, "\"mainClass\":\"", "\"");
+        if (mainClass.isEmpty()) {
+            mainClass = "net.minecraft.client.main.Main";
+        }
+        System.out.println("📌 主类：" + mainClass);
+        
+        StringBuilder classpath = new StringBuilder();
+        classpath.append("versions/").append(versionId).append("/").append(versionId).append(".jar");
+        
+        java.nio.file.Path libDir = java.nio.file.Paths.get("libraries");
+        if (java.nio.file.Files.exists(libDir)) {
+            java.nio.file.Files.walk(libDir)
+                .filter(p -> p.toString().endsWith(".jar"))
+                .forEach(p -> {
+                    classpath.append(java.io.File.pathSeparator).append(p.toString());
+                });
+        }
+        
+        java.util.ArrayList<String> command = new java.util.ArrayList<>();
+        command.add("java");
+        command.add("-cp");
+        command.add(classpath.toString());
+        command.add(mainClass);
+        command.add("--gameDir");
+        command.add(".");
+        command.add("--version");
+        command.add(versionId);
+        command.add("--assetIndex");
+        command.add(extractValue(versionJson, "\"assetIndex\":{\"id\":\"", "\""));
+        command.add("--accessToken");
+        command.add("AuroraLauncher");
+        
+        System.out.println("\n📋 启动命令：");
+        System.out.println(String.join(" ", command));
+        
+        System.out.println("\n🎮 正在启动游戏...");
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.inheritIO();
+        pb.directory(java.nio.file.Paths.get(".").toFile());
+        
+        Process process = pb.start();
+        int exitCode = process.waitFor();
+        System.out.println("\n🏁 游戏已退出，退出码：" + exitCode);
+    }
+    
     private String extractValue(String text, String start, String end) {
         int startIndex = text.indexOf(start) + start.length();
         int endIndex = text.indexOf(end, startIndex);
