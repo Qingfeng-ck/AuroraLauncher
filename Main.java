@@ -2,12 +2,10 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        // 1. 获取版本列表
         VersionManager vm = new VersionManager();
         vm.fetchVersions();
         vm.displayVersions();
         
-        // 2. 用户选择版本
         Scanner scanner = new Scanner(System.in);
         System.out.print("\n选择版本 (1-" + vm.getVersionCount() + ")：");
         int choice = scanner.nextInt();
@@ -20,14 +18,14 @@ public class Main {
             
             System.out.println("✅ 已选择：" + versionId);
             
-            // 3. 下载版本JSON
             Downloader downloader = new Downloader();
             String versionJson = downloader.downloadVersionJson(versionUrl, versionId);
             
-            // 4. 解析并显示依赖库
+            // 解析并显示依赖库
             downloader.parseAndDisplayLibraries(versionJson);
             
-            System.out.println("\n🎯 下一步：下载依赖库jar文件");
+            // 新增：下载所有依赖库
+            downloader.downloadLibraries(versionJson);
         }
     }
 }
