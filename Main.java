@@ -21,11 +21,11 @@ public class Main {
             Downloader downloader = new Downloader();
             String versionJson = downloader.downloadVersionJson(versionUrl, versionId);
             
-            // 解析并显示依赖库
             downloader.parseAndDisplayLibraries(versionJson);
-            
-            // 新增：下载所有依赖库
             downloader.downloadLibraries(versionJson);
+            
+            // 新增：下载client.jar
+            downloader.downloadClient(versionJson, versionId);
         }
     }
 }
