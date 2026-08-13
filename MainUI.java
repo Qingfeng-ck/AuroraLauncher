@@ -21,7 +21,7 @@ public class MainUI extends Application {
         vm = new VersionManager();
         downloader = new Downloader();
         
-        Label title = new Label("✨ Aurora Launcher");
+        Label title = new Label("✨ Prism Launcher");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;");
         
         versionBox = new ComboBox<>();
@@ -64,7 +64,7 @@ public class MainUI extends Application {
         scene.setFill(Color.TRANSPARENT);
         
         stage.initStyle(StageStyle.TRANSPARENT);
-        stage.setTitle("Aurora Launcher");
+        stage.setTitle("Prism Launcher");
         stage.setScene(scene);
         stage.show();
         
