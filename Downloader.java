@@ -56,7 +56,7 @@ public class Downloader {
         System.out.println("\n✅ 依赖库列表解析完成！");
     }
     
-    // ========== 新增：下载所有依赖库 ==========
+    // 下载所有依赖库
     public void downloadLibraries(String versionJson) throws Exception {
         System.out.println("\n📦 开始下载依赖库...");
         
@@ -113,6 +113,58 @@ public class Downloader {
         }
         
         System.out.println("\n✅ 下载完成！共下载 " + count + " 个新文件");
+    }
+    
+    // 下载游戏核心文件 client.jar
+    public void downloadClient(String versionJson, String versionId) throws Exception {
+        System.out.println("\n🎮 正在下载游戏核心文件...");
+        
+        java.nio.file.Files.createDirectories(java.nio.file.Paths.get("versions/" + versionId));
+        
+        String clientUrl = extractValue(versionJson, "\"client\":{\"sha1\":\"[^\"]*\",\"size\":[0-9]*,\"url\":\"", "\"");
+        if (clientUrl.isEmpty()) {
+            int clientStart = versionJson.indexOf("\"client\"");
+            if (clientStart != -1) {
+                int urlStart = versionJson.indexOf("\"url\":\"", clientStart) + 7;
+                int urlEnd = versionJson.indexOf("\"", urlStart);
+                clientUrl = versionJson.substring(urlStart, urlEnd);
+            }
+        }
+        
+        if (clientUrl.isEmpty()) {
+            System.out.println("❌ 未找到client.jar下载地址");
+            return;
+        }
+        
+        String localPath = "versions/" + versionId + "/" + versionId + ".jar";
+        java.nio.file.Path localFile = java.nio.file.Paths.get(localPath);
+        
+        if (java.nio.file.Files.exists(localFile)) {
+            System.out.println("⏭️  已存在：" + versionId + ".jar");
+            return;
+        }
+        
+        try {
+            System.out.println("⬇️  下载：" + versionId + ".jar");
+            java.nio.file.Files.createDirectories(localFile.getParent());
+            
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(clientUrl))
+                .build();
+            HttpResponse<java.nio.file.Path> response = client.send(
+                request, 
+                HttpResponse.BodyHandlers.ofFile(localFile)
+            );
+            
+            if (response.statusCode() == 200) {
+                long size = java.nio.file.Files.size(localFile);
+                System.out.println("✅ 下载完成！文件大小：" + size + " 字节");
+            } else {
+                System.out.println("⚠️  下载失败，状态码：" + response.statusCode());
+            }
+        } catch (Exception e) {
+            System.out.println("❌ 下载出错：" + e.getMessage());
+        }
     }
     
     private String extractValue(String text, String start, String end) {
