@@ -35,14 +35,6 @@ public class VersionManager {
         java.util.Collections.reverse(releaseList);
     }
     
-    public void displayVersions() {
-        System.out.println("All versions:");
-        for (int i = 0; i < releaseList.size(); i++) {
-            String id = extractValue(releaseList.get(i), "\"id\":\"", "\"");
-            System.out.println((i + 1) + ". " + id);
-        }
-    }
-    
     public int getVersionCount() {
         return releaseList.size();
     }
